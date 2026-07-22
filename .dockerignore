@@ -1,0 +1,18 @@
+.git/
+.env
+.env.*
+.venv/
+node_modules/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.playwright-mcp/
+
+# 호스트의 세션·키·다운로드는 이미지에 굽지 않고 volume으로 주입한다.
+data/
+secrets/
+
+# 저장소에는 남기지만 운영 이미지 실행에는 필요하지 않다.
+tests/
+markdown/

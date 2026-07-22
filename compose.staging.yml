@@ -1,0 +1,149 @@
+# 운영과 완전히 다른 Compose project, DB 이름, volume, Secret 디렉터리를 사용하는 검증 환경이다.
+name: eclass-quest-staging
+
+x-log-policy: &log-policy
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-app-environment: &app-environment
+  DEPLOYMENT_ROLE: app
+  # 빈 값으로 base의 개발용 URL을 덮고, entrypoint가 Secret으로 새 URL을 조립한다.
+  MYSQL_URL: ""
+  MYSQL_HOST: mysql
+  MYSQL_PORT: "3306"
+  MYSQL_DATABASE: eclass_quest_staging
+  MYSQL_USER: eclass_app
+  MYSQL_PASSWORD_FILE: /run/secrets/mysql_app_password
+  OPENAI_API_KEY_FILE: /run/secrets/openai_api_key
+  OPENAI_MODEL: ${STAGING_OPENAI_MODEL:-gpt-5.6-terra}
+  OLLAMA_URL: ${STAGING_OLLAMA_URL:-http://host.docker.internal:11434/api/chat}
+  ECLASS_BASE_URL: https://learn.hansung.ac.kr
+  ECLASS_DEFAULT_LANGUAGE: ko
+  ECLASS_USERNAME_FILE: /run/secrets/eclass_username
+  ECLASS_PASSWORD_FILE: /run/secrets/eclass_password
+  ECLASS_SESSION_ENCRYPTION_KEY_FILE: /run/secrets/eclass_session_key
+  ECLASS_STORAGE_STATE_ENCRYPTED: /app/data/sessions/eclass_state.enc
+  ECLASS_SYNC_ON_STARTUP: "true"
+  ECLASS_SYNC_INTERVAL_MINUTES: ${STAGING_SYNC_INTERVAL_MINUTES:-30}
+  DOWNLOAD_ROOT: /app/data/downloads
+  WORKFLOW_AUDIT_PATH: /app/data/audit/workflow.jsonl
+
+services:
+  mysql:
+    container_name: !reset null
+    environment:
+      MYSQL_DATABASE: eclass_quest_staging
+      MYSQL_USER: eclass_app
+      MYSQL_PASSWORD: !reset null
+      MYSQL_ROOT_PASSWORD: !reset null
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_app_password
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+    ports: !reset []
+    volumes: !override
+      - staging_mysql_data:/var/lib/mysql
+    secrets:
+      - mysql_app_password
+      - mysql_root_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    logging: *log-policy
+
+  migrate:
+    build: .
+    environment:
+      DEPLOYMENT_ROLE: migration
+      MYSQL_HOST: mysql
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: eclass_quest_staging
+      MYSQL_USER: eclass_app
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_app_password
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    secrets:
+      - mysql_app_password
+    restart: "no"
+    logging: *log-policy
+
+  # named volume은 최초 생성 시 root 소유일 수 있으므로 비-root 앱이 쓰기 전에 한 번 정리한다.
+  app-data-init:
+    image: busybox:1.36
+    user: "0:0"
+    environment:
+      APP_UID: ${APP_UID:-1000}
+      APP_GID: ${APP_GID:-1000}
+    command:
+      - sh
+      - -eu
+      - -c
+      - >-
+        mkdir -p /app-data/audit /app-data/downloads /app-data/sessions;
+        chown -R "$${APP_UID}:$${APP_GID}" /app-data;
+        chmod 700 /app-data/sessions
+    volumes:
+      - staging_app_data:/app-data
+    security_opt:
+      - no-new-privileges:true
+    restart: "no"
+    logging: *log-policy
+
+  app:
+    env_file: !reset []
+    environment: *app-environment
+    depends_on:
+      mysql:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      app-data-init:
+        condition: service_completed_successfully
+    volumes: !override
+      - staging_app_data:/app/data
+    secrets:
+      - mysql_app_password
+      - openai_api_key
+      - eclass_username
+      - eclass_password
+      - eclass_session_key
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    init: true
+    shm_size: "1gb"
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "scripts/container_healthcheck.py"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    stop_grace_period: 30s
+    restart: unless-stopped
+    logging: *log-policy
+
+volumes:
+  staging_mysql_data:
+    name: eclass-quest-staging-mysql
+  staging_app_data:
+    name: eclass-quest-staging-app-data
+
+secrets:
+  mysql_app_password:
+    file: ${STAGING_SECRET_DIR:-./secrets/staging}/mysql_app_password.txt
+  mysql_root_password:
+    file: ${STAGING_SECRET_DIR:-./secrets/staging}/mysql_root_password.txt
+  openai_api_key:
+    file: ${STAGING_SECRET_DIR:-./secrets/staging}/openai_api_key.txt
+  eclass_username:
+    file: ${STAGING_SECRET_DIR:-./secrets/staging}/eclass_username.txt
+  eclass_password:
+    file: ${STAGING_SECRET_DIR:-./secrets/staging}/eclass_password.txt
+  eclass_session_key:
+    file: ${STAGING_SECRET_DIR:-./secrets/staging}/eclass_session_key.txt

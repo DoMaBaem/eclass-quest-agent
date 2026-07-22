@@ -1,0 +1,62 @@
+# 환경변수·자격증명
+.env*
+!.env.example
+*.key
+*.pem
+*.enc
+*.p12
+*.pfx
+.envrc
+.direnv/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+junit.xml
+
+# 빌드 결과
+build/
+dist/
+*.egg-info/
+
+# E-Class 런타임 데이터
+data/
+
+# 배포 Secret — 설명 파일만 공개
+secrets/*
+!secrets/README.md
+
+# IDE·OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# 로컬 로그·DB·백업
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.sql.gz
+*.dump
+*.bak
+*.tmp
+
+# Codex 로컬 설정
+.agents/
+.codex/
+
+# 사용하지 않을 경우
+node_modules/
+.playwright-mcp/

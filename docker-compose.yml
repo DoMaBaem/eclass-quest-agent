@@ -1,0 +1,37 @@
+services:
+  app:
+    build: .
+    profiles: ["app"]
+    environment:
+      # 컨테이너 안에서는 localhost가 아니라 Compose 서비스 이름으로 DB에 접근한다.
+      MYSQL_URL: mysql+asyncmy://eclass_app:local_password@mysql:3306/eclass_quest?charset=utf8mb4
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+    stdin_open: true
+    tty: true
+
+  mysql:
+    image: mysql:8.0
+    container_name: eclass-quest-mysql
+    environment:
+      MYSQL_DATABASE: eclass_quest
+      MYSQL_USER: eclass_app
+      MYSQL_PASSWORD: local_password
+      MYSQL_ROOT_PASSWORD: local_root_password
+    ports:
+      # 로컬 PC에서만 접근하게 해 개발용 비밀번호가 외부 네트워크에 노출되지 않게 한다.
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-plocal_root_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
