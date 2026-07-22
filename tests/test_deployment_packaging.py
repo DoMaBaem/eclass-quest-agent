@@ -30,7 +30,12 @@ class DeploymentPackagingTest(unittest.TestCase):
         self.assertIn("scripts/desktop_start.sh", dockerfile)
         self.assertIn('SELKIES_AUDIO_ENABLED: "true"', compose)
         self.assertIn('"127.0.0.1:3001:3001"', compose)
-        self.assertIn("host.docker.internal:host-gateway", compose)
+        self.assertIn("ollama/ollama:latest", compose)
+        self.assertIn("curlimages/curl:latest", compose)
+        self.assertIn("http://ollama:11434/api/chat", compose)
+        self.assertIn("qwen3:0.6b", compose)
+        self.assertIn("http://ollama:11434/api/pull", compose)
+        self.assertIn("ollama_data:/root/.ollama", compose)
 
     def test_local_launcher_starts_mysql_migrates_and_then_runs_tui(self) -> None:
         launcher = (PROJECT_ROOT / "scripts/local_launcher.py").read_text(encoding="utf-8")

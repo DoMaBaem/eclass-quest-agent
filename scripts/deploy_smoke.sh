@@ -13,7 +13,8 @@ fi
 cd "$PROJECT_ROOT"
 COMPOSE=(docker compose -f docker-compose.yml -f "compose.${ENVIRONMENT}.yml")
 "${COMPOSE[@]}" --profile app config --quiet
-"${COMPOSE[@]}" up -d mysql
+"${COMPOSE[@]}" up -d mysql ollama
+"${COMPOSE[@]}" run --rm ollama-model
 "${COMPOSE[@]}" run --rm migrate
 "${COMPOSE[@]}" --profile app run --rm --no-deps app \
   python scripts/deployment_smoke.py "$@"

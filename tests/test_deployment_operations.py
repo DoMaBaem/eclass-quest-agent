@@ -171,6 +171,12 @@ class DeploymentObservabilityTest(unittest.TestCase):
         tui = startup.index("-m app.main")
         self.assertLess(migration, tui)
 
+    def test_deployment_smoke_prepares_compose_ollama_model(self) -> None:
+        smoke = (PROJECT_ROOT / "scripts/deploy_smoke.sh").read_text(encoding="utf-8")
+
+        self.assertIn('up -d mysql ollama', smoke)
+        self.assertIn('run --rm ollama-model', smoke)
+
 
 if __name__ == "__main__":
     unittest.main()

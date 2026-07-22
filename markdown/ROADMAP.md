@@ -100,7 +100,7 @@ Agent가 아닌 결정적 Python 서비스는 다음과 같다.
 - [x] `.env.example`, `.gitignore` 작성
 - [x] Docker Compose로 개발용 MySQL 8.0 실행
 - [x] Playwright Chromium 설치
-- [x] Ollama와 `qwen3:0.6b` 설치 확인
+- [x] Docker Compose Ollama와 `qwen3:0.6b` 자동 준비
 - [x] Textual 설치
 - [x] `app/`, `mcp_server/`, `scripts/`, `tests/` 기본 구조 생성
 - [x] OpenAI Agents SDK와 `gpt-5.6-terra` 설정

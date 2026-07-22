@@ -19,7 +19,7 @@ x-app-environment: &app-environment
   MYSQL_PASSWORD_FILE: /run/secrets/mysql_app_password
   OPENAI_API_KEY_FILE: /run/secrets/openai_api_key
   OPENAI_MODEL: ${PRODUCTION_OPENAI_MODEL:-gpt-5.6-terra}
-  OLLAMA_URL: ${PRODUCTION_OLLAMA_URL:-http://host.docker.internal:11434/api/chat}
+  OLLAMA_URL: ${PRODUCTION_OLLAMA_URL:-http://ollama:11434/api/chat}
   ECLASS_BASE_URL: https://learn.hansung.ac.kr
   ECLASS_DEFAULT_LANGUAGE: ko
   ECLASS_USERNAME_FILE: /run/secrets/eclass_username
@@ -105,6 +105,8 @@ services:
         condition: service_completed_successfully
       app-data-init:
         condition: service_completed_successfully
+      ollama-model:
+        condition: service_completed_successfully
     volumes: !override
       - production_app_data:/app/data
     secrets:
@@ -113,8 +115,6 @@ services:
       - eclass_username
       - eclass_password
       - eclass_session_key
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     init: true
     shm_size: "1gb"
     security_opt:
