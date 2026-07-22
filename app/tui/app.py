@@ -657,7 +657,7 @@ class EclassQuestApp(App[None]):
                 UiOperationState.AUTH_REQUIRED,
                 tool="E-Class MCP",
                 progress=100,
-                detail="로그인 필요 · scripts/login.sh",
+                detail="로그인 필요 · 실행 명령에 --setup 사용",
             )
             if trigger is SyncTrigger.MANUAL:
                 self._append_transcript(

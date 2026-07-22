@@ -1,4 +1,43 @@
 services:
+  # Docker만으로 실행하는 크로스 플랫폼 배포 모드다. 웹 데스크톱 안에서 TUI와 headed Chromium을
+  # 함께 실행하므로 호스트 OS의 GUI·오디오 연결 방식을 따로 설정할 필요가 없다.
+  desktop:
+    build:
+      context: .
+      dockerfile: Dockerfile.desktop
+    container_name: eclass-quest-desktop
+    profiles: ["desktop"]
+    environment:
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-Asia/Seoul}
+      TITLE: E-Class Quest
+      START_DOCKER: "false"
+      MYSQL_URL: mysql+asyncmy://eclass_app:local_password@mysql:3306/eclass_quest?charset=utf8mb4
+      # 컨테이너의 localhost는 호스트가 아니므로 Ollama 전용 호스트 이름을 사용한다.
+      OLLAMA_URL: ${DESKTOP_OLLAMA_URL:-http://host.docker.internal:11434/api/chat}
+      ECLASS_BASE_URL: ${ECLASS_BASE_URL:-https://learn.hansung.ac.kr}
+      ECLASS_DEFAULT_LANGUAGE: ko
+      SELKIES_AUDIO_ENABLED: "true"
+      SELKIES_MICROPHONE_ENABLED: "false"
+      SELKIES_UI_TITLE: E-Class Quest
+      SELKIES_MANUAL_WIDTH: ${ECLASS_DESKTOP_WIDTH:-1440}
+      SELKIES_MANUAL_HEIGHT: ${ECLASS_DESKTOP_HEIGHT:-900}
+      SELKIES_FRAMERATE: ${ECLASS_DESKTOP_FRAMERATE:-30}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      # HTTPS가 오디오·영상 브라우저 기능에 필요하다. 외부에는 노출하지 않고 로컬에서만 연다.
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - ./data:/app/data
+      - desktop_config:/config
+    shm_size: "1gb"
+    restart: unless-stopped
+
   app:
     build: .
     profiles: ["app"]
@@ -35,3 +74,4 @@ services:
 
 volumes:
   mysql_data:
+  desktop_config:

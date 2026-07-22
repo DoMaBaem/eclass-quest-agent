@@ -603,6 +603,9 @@ Secret 경로를 공유하지 않는다. 앱 기동 전에 일회성 Alembic mig
 Playwright, E-Class·Document MCP, OpenAI, Ollama는 구성요소별 smoke 결과와 오류 코드로 구분한다.
 운영 Secret은 `/run/secrets/*` 파일 계약으로만 주입하고 이미지·Git·Compose 평문에 저장하지 않는다.
 
-TUI는 터미널이 연결된 동안만 동작한다. 특히 headed Chromium 영상과 오디오는 원격 컨테이너가
-사용자 화면을 대신할 수 없으므로, 단일 사용자 영상 시연은 호스트 WSL 실행을 우선한다. 상세 명령,
-백업·복구와 rollback 절차는 [`DEPLOYMENT.md`](./DEPLOYMENT.md)를 따른다.
+TUI는 터미널이 연결된 동안만 동작한다. 기본 로컬 배포에서는 LinuxServer Webtop 기반 Desktop
+이미지에 TUI·Agent·MCP·Playwright·Chromium을 함께 넣고, Selkies HTTPS 웹 데스크톱이 영상과
+오디오를 Windows·macOS·Linux 사용자의 브라우저로 전달한다. MySQL은 별도 Compose 서비스이며
+Ollama는 `host.docker.internal`을 통해 호스트 서비스를 사용한다. 호스트 Python 실행 파일은 개발
+경로로 유지한다. 상세 명령, 백업·복구와 rollback 절차는 [`DEPLOYMENT.md`](./DEPLOYMENT.md)를
+따른다.

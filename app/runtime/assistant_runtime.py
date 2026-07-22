@@ -341,7 +341,7 @@ class ProactiveAssistantRuntime:
             )
         except OpenAiApiKeyRequiredError:
             return self._failure(
-                "OpenAI API 키가 필요합니다. ./run.sh --setup에서 설정하세요.",
+                "OpenAI API 키가 필요합니다. 실행 명령의 --setup 옵션에서 설정하세요.",
                 ErrorCode.OPENAI_API_KEY_REQUIRED,
             )
         except Exception:

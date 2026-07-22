@@ -164,6 +164,13 @@ class DeploymentObservabilityTest(unittest.TestCase):
         self.assertIn("USER eclass", dockerfile)
         self.assertIn('ENTRYPOINT ["python", "/app/scripts/container_entrypoint.py"]', dockerfile)
 
+    def test_desktop_start_runs_migration_before_tui(self) -> None:
+        startup = (PROJECT_ROOT / "scripts/desktop_start.sh").read_text(encoding="utf-8")
+
+        migration = startup.index("-m alembic upgrade head")
+        tui = startup.index("-m app.main")
+        self.assertLess(migration, tui)
+
 
 if __name__ == "__main__":
     unittest.main()

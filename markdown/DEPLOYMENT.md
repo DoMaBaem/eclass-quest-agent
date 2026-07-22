@@ -101,13 +101,20 @@ docker compose \
   --profile app run --rm app
 ```
 
-### 컨테이너와 영상 창의 한계
+### 로컬 Desktop 이미지와 영상 창
 
-TUI 자체는 붙어 있는 터미널에서 작동하지만, `headless=False`인 강의 영상 창과 소리는 컨테이너가
-실행되는 장비의 Display·Wayland·PulseAudio 전달 설정이 있어야 한다. 원격 서버 컨테이너에서 연
-창이 사용자의 Windows 화면에 자동으로 나타나지는 않는다. 영상 재생 시연이 중요하면 현재처럼
-**TUI·Playwright·Ollama는 사용자 WSL에서 실행하고 MySQL만 Docker로 실행하는 방식**이 가장
-안정적이다. 컨테이너 smoke의 Playwright 검사는 배포 서버에서 가능한 headless 경계까지만 보장한다.
+`Dockerfile.desktop`은 LinuxServer Webtop의 HTTPS 웹 데스크톱과 오디오 스트리밍을 사용한다.
+TUI·Agent·MCP·Playwright·Chromium이 같은 컨테이너에서 실행되며 headed 강의 창은 사용자의
+`https://localhost:3001` 화면에 나타난다. MySQL은 별도 Compose 서비스이고 Ollama는
+`host.docker.internal`을 통해 호스트에 연결한다. 웹 데스크톱은 로컬 인터페이스에만 바인딩하며
+HTTPS를 사용해야 브라우저의 영상·오디오 기능이 동작한다.
+
+```bash
+docker compose --profile desktop up -d --build
+```
+
+이 Desktop 모드는 Windows·macOS·Linux 개인 PC 배포용이다. 인터넷에 직접 포트를 공개하는 서버
+배포는 Desktop 서비스가 아니라 기존 Production Compose와 인증된 reverse proxy를 사용한다.
 
 ## 7. 백업과 복구
 

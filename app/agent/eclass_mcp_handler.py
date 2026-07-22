@@ -56,12 +56,28 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 # headed Chromium에 필요한 GUI 변수는 그 기본 목록에서 제외되므로, 비밀값 전체를 넘기지 않고
 # 화면·오디오 연결에 필요한 이름만 명시적으로 허용한다.
 MCP_GUI_ENV_KEYS = (
+    # Docker 이미지에 설치된 Playwright Chromium 위치다. MCP SDK에 ``env``를 명시하면
+    # 이 값은 자동 상속되지 않으므로 누락 시 Agent가 띄운 MCP에서만 브라우저 실행이 실패한다.
+    "PLAYWRIGHT_BROWSERS_PATH",
+    # Linux/WSL GUI·오디오
     "DISPLAY",
     "WAYLAND_DISPLAY",
     "XDG_RUNTIME_DIR",
     "XAUTHORITY",
     "PULSE_SERVER",
+    # LinuxServer Webtop은 PULSE_SERVER 대신 이 경로의 native 소켓을 사용한다.
+    # 누락하면 headed Chromium 영상은 재생돼도 PulseAudio 출력 스트림이 생기지 않는다.
+    "PULSE_RUNTIME_PATH",
     "DBUS_SESSION_BUS_ADDRESS",
+    # Windows에서 Chromium subprocess가 사용자 프로필과 시스템 실행 파일을 찾는 데 필요하다.
+    "USERPROFILE",
+    "LOCALAPPDATA",
+    "APPDATA",
+    "SYSTEMROOT",
+    "COMSPEC",
+    "PATHEXT",
+    "TEMP",
+    "TMP",
 )
 
 
@@ -1625,7 +1641,7 @@ class EclassMcpSpecialistHandler:
                 return await self._list_verified_assignment_attachments(task)
             return await self._get_verified_assignment_details(task)
         if not self.settings.openai_api_key or self.settings.openai_api_key == "...":
-            raise OpenAiApiKeyRequiredError("./run.sh --setup에서 OpenAI API 키를 설정하세요.")
+            raise OpenAiApiKeyRequiredError("실행 명령의 --setup 옵션에서 OpenAI API 키를 설정하세요.")
         set_default_openai_key(self.settings.openai_api_key)
         capture = _VerifiedMcpOutputCapture()
         # Agent가 현재 요청에서 첨부 목록까지는 검증했지만 보안상 숨겨진 원시 다운로드 Tool을

@@ -74,7 +74,7 @@ class DocumentSpecialistHandler:
             )
 
         if not self.settings.openai_api_key or self.settings.openai_api_key == "...":
-            raise OpenAiApiKeyRequiredError("./run.sh --setup에서 OpenAI API 키를 설정하세요.")
+            raise OpenAiApiKeyRequiredError("실행 명령의 --setup 옵션에서 OpenAI API 키를 설정하세요.")
         set_default_openai_key(self.settings.openai_api_key)
 
         # Agent에게 식별자를 다시 전달시키지 않는다. 인자가 없는 고수준 Tool이 클로저에 들어 있는

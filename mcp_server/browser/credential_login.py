@@ -34,7 +34,7 @@ async def refresh_encrypted_session(settings: Settings) -> Path:
 
     if not automatic_login_available(settings):
         raise AuthRequiredError(
-            "자동 로그인 정보가 없습니다. ./run.sh --setup 또는 scripts/login.sh를 실행하세요."
+            "자동 로그인 정보가 없습니다. 사용하는 OS의 실행 명령에 --setup을 붙여 다시 설정하세요."
         )
 
     # SecretStr 평문은 이 함수의 지역 변수로만 짧게 유지한다.

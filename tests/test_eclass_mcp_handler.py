@@ -25,6 +25,7 @@ from app.agent.eclass_mcp_handler import (
     _lecture_followup_context,
     _lecture_list_display_text,
     _lecture_resolution_followup_context,
+    _mcp_gui_environment,
     _prefer_verified_assignment_list,
     _prefer_verified_lecture_list,
     _safe_playback_arguments,
@@ -75,6 +76,26 @@ from mcp_server.schemas import (
 
 
 class VerifiedMcpOutputCaptureTest(unittest.IsolatedAsyncioTestCase):
+    def test_mcp_subprocess_inherits_browser_and_audio_paths(self) -> None:
+        """Docker MCP 자식 프로세스가 Chromium과 PulseAudio 경로를 잃지 않는다."""
+
+        with patch.dict(
+            "os.environ",
+            {
+                "PLAYWRIGHT_BROWSERS_PATH": "/ms-playwright",
+                "PULSE_RUNTIME_PATH": "/defaults",
+            },
+            clear=True,
+        ):
+            self.assertEqual(
+                _mcp_gui_environment()["PLAYWRIGHT_BROWSERS_PATH"],
+                "/ms-playwright",
+            )
+            self.assertEqual(
+                _mcp_gui_environment()["PULSE_RUNTIME_PATH"],
+                "/defaults",
+            )
+
     async def test_announcement_detail_is_not_completed_by_list_only(self) -> None:
         """DETAIL 계약은 공지 목록 조회만으로 완료될 수 없다."""
 

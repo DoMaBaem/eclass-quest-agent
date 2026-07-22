@@ -19,16 +19,36 @@ class DeploymentPackagingTest(unittest.TestCase):
             r"COPY(?: --chown=\S+)? document_mcp_server ./document_mcp_server",
         )
 
-    def test_local_launcher_starts_mysql_migrates_and_then_runs_tui(self) -> None:
-        launcher = (PROJECT_ROOT / "run.sh").read_text(encoding="utf-8")
+    def test_desktop_image_contains_web_desktop_audio_and_autostart(self) -> None:
+        dockerfile = (PROJECT_ROOT / "Dockerfile.desktop").read_text(encoding="utf-8")
+        compose = (PROJECT_ROOT / "docker-compose.yml").read_text(encoding="utf-8")
 
-        mysql = launcher.index("docker compose up -d mysql")
-        migration = launcher.index("-m alembic upgrade head")
-        tui = launcher.rindex("-m app.main")
+        self.assertIn("lscr.io/linuxserver/webtop:ubuntu-xfce", dockerfile)
+        self.assertIn("python -m playwright install --with-deps chromium", dockerfile)
+        self.assertIn("/usr/local/bin:/lsiopy/bin", dockerfile)
+        self.assertIn("/etc/xdg/autostart/eclass-quest.desktop", dockerfile)
+        self.assertIn("scripts/desktop_start.sh", dockerfile)
+        self.assertIn('SELKIES_AUDIO_ENABLED: "true"', compose)
+        self.assertIn('"127.0.0.1:3001:3001"', compose)
+        self.assertIn("host.docker.internal:host-gateway", compose)
+
+    def test_local_launcher_starts_mysql_migrates_and_then_runs_tui(self) -> None:
+        launcher = (PROJECT_ROOT / "scripts/local_launcher.py").read_text(encoding="utf-8")
+        posix_wrapper = (PROJECT_ROOT / "run.sh").read_text(encoding="utf-8")
+        powershell_wrapper = (PROJECT_ROOT / "run.ps1").read_text(encoding="utf-8")
+        cmd_wrapper = (PROJECT_ROOT / "run.cmd").read_text(encoding="utf-8")
+
+        mysql = launcher.index('"compose", "up", "-d", "mysql"')
+        migration = launcher.index('"alembic", "upgrade", "head"')
+        tui = launcher.rindex('"app.main"')
         self.assertLess(mysql, migration)
         self.assertLess(migration, tui)
-        self.assertIn(".venv/bin/python", launcher)
-        self.assertIn('export MYSQL_URL="${MYSQL_URL:-$LOCAL_MYSQL_URL}"', launcher)
+        self.assertIn(".venv/bin/python", posix_wrapper)
+        self.assertIn("scripts.local_launcher", posix_wrapper)
+        self.assertIn(".venv\\Scripts\\python.exe", powershell_wrapper)
+        self.assertIn("scripts.local_launcher", powershell_wrapper)
+        self.assertIn(".venv\\Scripts\\python.exe", cmd_wrapper)
+        self.assertIn("scripts.local_launcher", cmd_wrapper)
 
     def test_development_mysql_port_is_bound_to_localhost_only(self) -> None:
         compose = (PROJECT_ROOT / "docker-compose.yml").read_text(encoding="utf-8")

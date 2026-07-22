@@ -104,13 +104,16 @@ Agent가 아닌 결정적 Python 서비스는 다음과 같다.
 - [x] Textual 설치
 - [x] `app/`, `mcp_server/`, `scripts/`, `tests/` 기본 구조 생성
 - [x] OpenAI Agents SDK와 `gpt-5.6-terra` 설정
+- [x] Windows용 `run.ps1`·`run.cmd`, macOS·Linux용 `run.sh` 제공
+- [x] 모든 OS가 공유하는 `scripts/local_launcher.py` 구현 및 실행 순서 테스트
 
 ### 최초 실행 설정과 로컬 연결 환경변수
 
-모델·OpenAI API 키·E-Class 계정은 `./run.sh` 최초 실행에서 입력한다. 모델은 일반 설정 파일,
-API 키와 계정은 Git에서 제외된 암호화 파일에 보관하며 `./run.sh --setup`으로 변경한다.
-`run.sh`는 로컬 MySQL URL을 자동 설정하고 Docker MySQL 시작·health 확인·Alembic migration까지
-수행하므로 일반 사용자는 `.env`나 `docker compose` 명령을 직접 입력하지 않는다.
+모델·OpenAI API 키·E-Class 계정은 OS별 실행 파일의 최초 실행에서 입력한다. 모델은 일반 설정
+파일, API 키와 계정은 Git에서 제외된 암호화 파일에 보관하며 실행 명령에 `--setup`을 붙여
+변경한다. Windows의 `run.ps1`·`run.cmd`와 macOS·Linux의 `run.sh`는 공통 Python 런처를 통해
+로컬 MySQL URL 설정, Docker MySQL 시작·health 확인·Alembic migration을 수행한다. 일반 사용자는
+`.env`나 `docker compose` 명령을 직접 입력하지 않는다.
 
 ```env
 # 아래 값은 기본값과 다른 서비스를 사용할 때만 선택적으로 지정한다.
@@ -635,6 +638,8 @@ MarkItDown·Qwen 분석 성공 여부는 파일 형식별로 다르며 변환할
 ### 배포
 
 - [x] 앱·E-Class MCP·Document MCP를 포함하는 Dockerfile
+- [x] Selkies 웹 화면·오디오와 Chromium을 포함하는 `Dockerfile.desktop`
+- [x] Windows·macOS·Linux 공통 Desktop Compose 서비스와 로컬 HTTPS 포트 구성
 - [x] 앱과 MySQL 8.0용 Docker Compose 구성 및 `docker compose config` 검증
 - [x] Staging·Production MySQL 분리
 - [x] Docker Compose Secret 및 배포 플랫폼 Secret 주입 경로 설정

@@ -425,7 +425,7 @@ class HansungPlaywrightAdapter(EclassAdapter):
         )
         await page.wait_for_timeout(500)
         if self._looks_like_login_url(page.url):
-            raise AuthRequiredError("E-Class 세션이 만료되었습니다. scripts/login.sh로 다시 로그인하세요.")
+            raise AuthRequiredError("E-Class 세션이 만료되었습니다. 실행 명령에 --setup을 붙여 다시 로그인하세요.")
 
         # URL만으로 로그인 완료를 단정하지 않는다. 로그아웃 표식을 우선 확인한다.
         if await self._has_any_visible(page, HansungSelectors.LOGIN_SUCCESS):
@@ -433,7 +433,7 @@ class HansungPlaywrightAdapter(EclassAdapter):
         # SSO가 로그아웃 텍스트를 숨기는 경우를 위해 로그인 폼이 없는 대시보드만 보조적으로 허용한다.
         login_inputs = page.locator("input[type='password'], input[name*='password' i]")
         if await login_inputs.count() > 0:
-            raise AuthRequiredError("E-Class 로그인 화면이 표시되었습니다. scripts/login.sh로 다시 로그인하세요.")
+            raise AuthRequiredError("E-Class 로그인 화면이 표시되었습니다. 실행 명령에 --setup을 붙여 다시 로그인하세요.")
 
     async def _open_my_courses(self, page: Page) -> None:
         """언어와 메뉴 표시 상태에 영향받지 않도록 정규 수강 강좌 URL로 이동한다."""
@@ -444,7 +444,7 @@ class HansungPlaywrightAdapter(EclassAdapter):
             wait_until="domcontentloaded",
         )
         if self._looks_like_login_url(page.url):
-            raise AuthRequiredError("E-Class 세션이 만료되었습니다. scripts/login.sh로 다시 로그인하세요.")
+            raise AuthRequiredError("E-Class 세션이 만료되었습니다. 실행 명령에 --setup을 붙여 다시 로그인하세요.")
 
     async def _read_selected_term(
         self,
@@ -485,7 +485,7 @@ class HansungPlaywrightAdapter(EclassAdapter):
             wait_until="domcontentloaded",
         )
         if self._looks_like_login_url(page.url):
-            raise AuthRequiredError("E-Class 세션이 만료되었습니다. scripts/login.sh로 다시 로그인하세요.")
+            raise AuthRequiredError("E-Class 세션이 만료되었습니다. 실행 명령에 --setup을 붙여 다시 로그인하세요.")
 
         year_select = page.locator(HansungSelectors.YEAR_SELECT[0]).first
         semester_select = page.locator(HansungSelectors.SEMESTER_SELECT[0]).first

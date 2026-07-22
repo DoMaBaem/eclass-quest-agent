@@ -1,0 +1,51 @@
+# syntax=docker/dockerfile:1
+
+# Python 3.12 런타임을 고정해 Webtop 배포판의 기본 Python 버전이 바뀌어도 앱 동작을 유지한다.
+FROM python:3.12-slim AS python-runtime
+
+# Windows·macOS·Linux Docker에서 동일한 HTTPS 웹 데스크톱과 오디오를 제공한다.
+FROM lscr.io/linuxserver/webtop:ubuntu-xfce
+
+USER root
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
+    ECLASS_DESKTOP_MODE=1 \
+    PATH=/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin
+
+COPY --from=python-runtime /usr/local /usr/local
+COPY requirements.txt ./
+
+# Playwright가 현재 Webtop Ubuntu에 맞는 Chromium 시스템 라이브러리도 함께 설치한다.
+RUN /usr/local/bin/python -m pip install --no-cache-dir -r requirements.txt \
+    && /usr/local/bin/python -m playwright install --with-deps chromium
+
+# Webtop의 Selkies 실행 파일과 프로젝트의 Python 3.12를 모두 찾을 수 있어야 한다.
+ENV PATH=/usr/local/bin:/lsiopy/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin
+
+COPY app ./app
+COPY mcp_server ./mcp_server
+COPY document_mcp_server ./document_mcp_server
+COPY alembic ./alembic
+COPY alembic.ini ./alembic.ini
+COPY scripts ./scripts
+
+# Webtop 로그인 시 XFCE 표준 autostart로 터미널에서 migration과 TUI를 자동 시작한다.
+RUN chmod +x /app/scripts/desktop_start.sh \
+    && printf '%s\n' \
+       '[Desktop Entry]' \
+       'Type=Application' \
+       'Name=E-Class Quest' \
+       'Comment=Start E-Class Quest TUI' \
+       'Exec=xfce4-terminal --maximize --hold --title="E-Class Quest" --command=/app/scripts/desktop_start.sh' \
+       'OnlyShowIn=XFCE;' \
+       'X-GNOME-Autostart-enabled=true' \
+       > /etc/xdg/autostart/eclass-quest.desktop \
+    && mkdir -p /app/data/audit /app/data/downloads /app/data/sessions \
+    && chown -R abc:abc /app /ms-playwright
+
+EXPOSE 3001
+
+# Webtop의 /init을 그대로 사용해야 웹 화면·PulseAudio·Selkies 서비스가 함께 기동된다.

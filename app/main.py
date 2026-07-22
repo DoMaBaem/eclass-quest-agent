@@ -23,7 +23,7 @@ def main(argv: list[str] | None = None) -> int:
         settings = get_settings(store)
     except (SetupStoreError, SetupCancelledError) as exc:
         print(f"설정을 완료하지 못했습니다: {exc}")
-        print("다시 설정하려면 ./run.sh --setup 을 실행하세요.")
+        print("다시 설정하려면 사용하는 OS의 실행 명령에 --setup 옵션을 붙이세요.")
         return 2
 
     EclassQuestApp(settings).run()

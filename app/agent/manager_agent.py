@@ -99,7 +99,7 @@ async def create_plan(
     """RuntimeEvent 하나를 안전한 ManagerPlan으로 변환한다."""
 
     if not settings.openai_api_key or settings.openai_api_key == "...":
-        raise OpenAiApiKeyRequiredError("./run.sh --setup에서 OpenAI API 키를 설정하세요.")
+        raise OpenAiApiKeyRequiredError("실행 명령의 --setup 옵션에서 OpenAI API 키를 설정하세요.")
 
     set_default_openai_key(settings.openai_api_key)
     # 이 단계는 계획 생성만 수행한다. Agent Tool 실행은 Runtime이 순서·한도를 검사한 뒤 담당한다.

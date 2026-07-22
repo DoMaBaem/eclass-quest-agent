@@ -73,7 +73,7 @@ def load_encrypted_storage_state(settings: Settings) -> dict[str, Any]:
 
     path = settings.eclass_storage_state_encrypted
     if not path.exists():
-        raise AuthRequiredError("저장된 E-Class 로그인 세션이 없습니다. scripts/login.sh를 실행하세요.")
+        raise AuthRequiredError("저장된 E-Class 로그인 세션이 없습니다. 실행 명령에 --setup을 붙여 다시 설정하세요.")
     try:
         # 복호화 결과는 메모리의 bytes/dict로만 존재하고 평문 파일로 기록하지 않는다.
         raw_state = Fernet(_load_or_create_key(settings)).decrypt(path.read_bytes())
