@@ -23,12 +23,9 @@
 
 ## 3. Agent 구조
 
-```text
-LMS Manager Agent
-├─ Runtime → E-Class Agent → E-Class MCP → Playwright → E-Class
-├─ Runtime → Document Analysis Agent → MarkItDown MCP → Ollama Qwen
-└─ Runtime → Mission Service → MySQL
-```
+<p align="center">
+  <img src="../arch.png" alt="E-Class Quest 시스템 아키텍처" width="900">
+</p>
 
 - **LMS Manager Agent**: 대화 문맥을 유지하고 요청을 `entity + action + slots` 계획으로 만든다.
 - **E-Class Agent**: 검증된 MCP 결과만 사용해 강좌·공지·과제·강의·성적 작업을 수행한다.
