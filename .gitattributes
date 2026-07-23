@@ -1,0 +1,23 @@
+# Windows에서 clone해 Docker Linux 이미지를 빌드해도 실행 스크립트가 CRLF로 바뀌지 않게 한다.
+* text=auto
+
+# 컨테이너와 Linux에서 해석되는 파일은 항상 LF로 checkout한다.
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+Dockerfile text eol=lf
+Dockerfile.* text eol=lf
+
+# Windows에서 직접 실행하는 시작 파일은 Windows 줄바꿈을 사용한다.
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+
+# 이미지와 글꼴 같은 바이너리는 줄바꿈 변환 대상에서 제외한다.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

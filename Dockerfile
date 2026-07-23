@@ -25,8 +25,10 @@ COPY --chown=eclass:eclass alembic.ini ./alembic.ini
 COPY --chown=eclass:eclass scripts ./scripts
 COPY --chown=eclass:eclass run.sh ./run.sh
 
+# Windows checkout에서 CRLF로 바뀐 셸 스크립트도 Linux 컨테이너에서 실행할 수 있게 한다.
 RUN mkdir -p /app/data/audit /app/data/downloads /app/data/sessions \
     && chown -R eclass:eclass /app/data \
+    && sed -i 's/\r$//' /app/run.sh /app/scripts/*.sh \
     && chmod +x /app/run.sh /app/scripts/*.sh
 
 USER eclass

@@ -33,7 +33,9 @@ COPY alembic.ini ./alembic.ini
 COPY scripts ./scripts
 
 # Webtop 로그인 시 XFCE 표준 autostart로 터미널에서 migration과 TUI를 자동 시작한다.
-RUN chmod +x /app/scripts/desktop_start.sh \
+# Git의 Windows 줄바꿈 설정과 무관하게 모든 셸 스크립트를 LF로 정규화한다.
+RUN sed -i 's/\r$//' /app/scripts/*.sh \
+    && chmod +x /app/scripts/desktop_start.sh \
     && printf '%s\n' \
        '[Desktop Entry]' \
        'Type=Application' \
