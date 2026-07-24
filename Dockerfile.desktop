@@ -32,7 +32,9 @@ COPY alembic ./alembic
 COPY alembic.ini ./alembic.ini
 COPY scripts ./scripts
 
-# Webtop 로그인 시 XFCE 표준 autostart로 터미널에서 migration과 TUI를 자동 시작한다.
+# Webtop 로그인 시 XFCE 표준 autostart가 xterm에서 migration과 TUI를 자동 시작한다.
+# xfce4-terminal은 일부 macOS Docker seccomp 환경에서 GLib fdwalk가 차단되어 자식 프로세스를
+# 만들지 못하므로, Webtop에 기본 포함되고 fork/exec 경로가 단순한 xterm을 사용한다.
 # Git의 Windows 줄바꿈 설정과 무관하게 모든 셸 스크립트를 LF로 정규화한다.
 RUN sed -i 's/\r$//' /app/scripts/*.sh \
     && chmod +x /app/scripts/desktop_start.sh \
@@ -41,7 +43,7 @@ RUN sed -i 's/\r$//' /app/scripts/*.sh \
        'Type=Application' \
        'Name=E-Class Quest' \
        'Comment=Start E-Class Quest TUI' \
-       'Exec=xfce4-terminal --maximize --hold --title="E-Class Quest" --command=/app/scripts/desktop_start.sh' \
+       'Exec=xterm -maximized -hold -title "E-Class Quest" -fa Monospace -fs 12 -e /app/scripts/desktop_start.sh' \
        'OnlyShowIn=XFCE;' \
        'X-GNOME-Autostart-enabled=true' \
        > /etc/xdg/autostart/eclass-quest.desktop \

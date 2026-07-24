@@ -28,6 +28,8 @@ class DeploymentPackagingTest(unittest.TestCase):
         self.assertIn("/usr/local/bin:/lsiopy/bin", dockerfile)
         self.assertIn("/etc/xdg/autostart/eclass-quest.desktop", dockerfile)
         self.assertIn("scripts/desktop_start.sh", dockerfile)
+        self.assertIn('Exec=xterm -maximized -hold -title "E-Class Quest"', dockerfile)
+        self.assertNotIn("Exec=xfce4-terminal", dockerfile)
         self.assertIn('SELKIES_AUDIO_ENABLED: "true"', compose)
         self.assertIn('"127.0.0.1:3001:3001"', compose)
         self.assertIn("ollama/ollama:latest", compose)

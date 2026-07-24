@@ -70,7 +70,7 @@ https://localhost:3001
 1. MySQL 8.0 상태 확인
 2. Ollama 실행 및 `qwen3:0.6b` 모델 준비
 3. Alembic migration 적용
-4. XFCE 터미널에서 E-Class Quest TUI 실행
+4. Webtop의 xterm에서 E-Class Quest TUI 실행
 5. 강의 재생 요청 시 같은 웹 데스크톱에 Chromium 창 표시
 6. Chromium 소리를 HTTPS 웹 화면으로 전달
 
